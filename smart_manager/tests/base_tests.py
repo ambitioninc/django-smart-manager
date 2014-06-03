@@ -1,11 +1,11 @@
 from django.test import TestCase
 
-from model_template.base import BaseModelTemplate
-from model_template.tests.model_templates import UpsertModelTemplate
-from model_template.tests.models import UpsertModel
+from smart_manager.base import BaseSmartManager
+from smart_manager.tests.smart_managers import UpsertSmartManager
+from smart_manager.tests.models import UpsertModel
 
 
-class BaseModelTemplateTest(TestCase):
+class BaseSmartManagerTest(TestCase):
     """
     Tests functionality in the base model template.
     """
@@ -15,23 +15,23 @@ class BaseModelTemplateTest(TestCase):
         class.
         """
         template = {'hello': 'world'}
-        model_template = BaseModelTemplate(template)
+        smart_manager = BaseSmartManager(template)
 
         # Modify the input template
         template['hello'] = 'world2'
 
         # The template in the model template should remain the same
-        self.assertEquals(model_template._template, {'hello': 'world'})
+        self.assertEquals(smart_manager._template, {'hello': 'world'})
 
     def test_build_object(self):
         """
         Tests that the build_object function upserts the object and adds it to the built objects list.
         """
-        model_template = BaseModelTemplate({})
-        model_template.build_obj(UpsertModel, char_field='hi', updates={
+        smart_manager = BaseSmartManager({})
+        smart_manager.build_obj(UpsertModel, char_field='hi', updates={
             'int_field': 1,
         })
-        model_template.build_obj(UpsertModel, char_field='hi', updates={
+        smart_manager.build_obj(UpsertModel, char_field='hi', updates={
             'int_field': 2,
         })
 
@@ -40,17 +40,17 @@ class BaseModelTemplateTest(TestCase):
         self.assertEquals(upsert_model.char_field, 'hi')
         self.assertEquals(upsert_model.int_field, 2)
         self.assertEquals(UpsertModel.objects.count(), 1)
-        self.assertEquals(model_template.built_objs, set([upsert_model]))
+        self.assertEquals(smart_manager.built_objs, set([upsert_model]))
 
     def test_build_using(self):
         """
         Tests building using another model template.
         """
-        model_template = BaseModelTemplate({})
-        model_template.build_obj_using(UpsertModelTemplate, {'int_field': 1, 'char_field': '2'})
+        smart_manager = BaseSmartManager({})
+        smart_manager.build_obj_using(UpsertSmartManager, {'int_field': 1, 'char_field': '2'})
 
         upsert_model = UpsertModel.objects.get()
         self.assertEquals(upsert_model.int_field, 1)
         self.assertEquals(upsert_model.char_field, '2')
         self.assertEquals(UpsertModel.objects.count(), 1)
-        self.assertEquals(model_template.built_objs, set([upsert_model]))
+        self.assertEquals(smart_manager.built_objs, set([upsert_model]))

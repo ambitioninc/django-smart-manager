@@ -1,14 +1,14 @@
-[![Build Status](https://travis-ci.org/ambitioninc/django-entity.png)](https://travis-ci.org/ambitioninc/django-model-template)
-Django Model Template
+[![Build Status](https://travis-ci.org/ambitioninc/django-entity.png)](https://travis-ci.org/ambitioninc/django-smart-manager)
+Django Smart Manager
 ==================
-Django Model Template provides a simple framework for representing and managing Django models from serializable templates.
+Django Smart Manager provides a simple framework for representing and managing Django models from serializable templates.
 
 
 #Problem Overview
 
 Oftentimes what we model in Django spans multiple objects and tables. Managing a single object that is represented by multiple models can be quite cumbersome through the shell or through basic Django administration. This app provides a framework such that a user can write templates that represent many models and complex relationships.
 
-For example, assume that you model a person. The ``Person`` model contains a unique identifier for that person, multiple ``PhoneNumber`` models that point to it, and multiple ``Address`` models. With Django Model Template, one can construct a template in the following manner:
+For example, assume that you model a person. The ``Person`` model contains a unique identifier for that person, multiple ``PhoneNumber`` models that point to it, and multiple ``Address`` models. With Django Smart Manager, one can construct a template in the following manner:
 
 ```python
 {
@@ -42,15 +42,15 @@ class Address(models.Model):
     city = models.CharField(max_length=128)
 ```
 
-In order to achieve the ability of specifying the ``Person`` model (and its related models) via a template as shown above, the user must create a model template class that inherits ``BaseModelTemplate``. This class will be responsible for taking in the template and managing the object(s) represented by the template.
+In order to achieve the ability of specifying the ``Person`` model (and its related models) via a template as shown above, the user must create a model template class that inherits ``BaseSmartManager``. This class will be responsible for taking in the template and managing the object(s) represented by the template.
 
 For the sake of example, let's assume we're going to build three model template classes: one to manage addresses, one to manage phone numbers, and one to manage a person and its associated addresses and phone numbers. We'll begin from the bottom up by building the ``Address`` model template. The code for this is shown below:
 
-```
-from model_template import BaseModelTemplate
+```python
+from smart_manager import BaseSmartManager
 
 
-class AddressModelTemplate(BaseModelTemplate):
+class AddressSmartManager(BaseSmartManager):
     def build(self):
         self.build_obj(person_id=self._template['person'], street=self._template['street'], city=self._template['city'])
 ```
@@ -58,7 +58,7 @@ class AddressModelTemplate(BaseModelTemplate):
 Now that we have this class, it can be called in the following way to build its associated object:
 
 ```python
-AddressModelTemplate({
+AddressSmartManager({
     'person': 1,  # The pk of a Person object
     'street': 'my street',
     'city': 'my city',
@@ -67,13 +67,13 @@ AddressModelTemplate({
 
 Underneath the hood, it is passing the parameters of build_obj to the ``upsert`` function [Django Manager Utils](https://github.com/ambitioninc/django-manager-utils) and also internally maintaining all of the objects that have been built.
 
-Now that the model template class has been created, a ``ModelTemplate`` model can be constructed as follows:
+Now that the model template class has been created, a ``SmartManager`` model can be constructed as follows:
 
 ```python
-from model_template import ModelTemplate
+from smart_manager import SmartManager
 
 
-mt = ModelTemplate.objects.create(model_template_class='path.to.AddressModelTemplate', template={
+mt = SmartManager.objects.create(smart_manager_class='path.to.AddressSmartManager', template={
     'person': 1,
     'street': 'my street',
     'city': 'my city',
@@ -82,30 +82,30 @@ mt = ModelTemplate.objects.create(model_template_class='path.to.AddressModelTemp
 
 Once this model is created, it manages all of the objects associated with the template. If the user was to change the template and save the ``mt`` variable from the example, the underlying ``Address`` model would be updated. Similarly, the underlying ``Address`` model will also be deleted when ``mt`` is deleted. The deletion behavior can be turned off by specifying ``manages_deletions=False`` in the creation of the model template.
 
-While this example is trivial, the power of Django Model Template is unleashed when you start to build more and more complex objects that need ot be managed. Let's assume that the user can now build the associated ``PhoneNumberModelTemplate`` class for creating ``PhoneNumber`` objects and move on to creating the ``PersonModelTemplate`` model template class:
+While this example is trivial, the power of Django Smart Manager is unleashed when you start to build more and more complex objects that need ot be managed. Let's assume that the user can now build the associated ``PhoneNumberSmartManager`` class for creating ``PhoneNumber`` objects and move on to creating the ``PersonSmartManager`` model template class:
 
 ```python
-class PersonModelTemplate(BaseModelTemplate):
+class PersonSmartManager(BaseSmartManager):
     def build(self):
         # Build the parent person object
         person = self.build_obj(unique_id=self._template['unique_id'])
 
-        # Build its child phone number objects using the PhoneNumberModelTemplate
+        # Build its child phone number objects using the PhoneNumberSmartManager
         for phone_number in self._template['phone_numbers']:
-            self.build_obj_using(PhoneModelTemplate, {
+            self.build_obj_using(PhoneSmartManager, {
                 'person': person.id,
                 'phone_number': phone_number
             })
 
-        # Build its child address objects using the AddressModelTemplate
+        # Build its child address objects using the AddressSmartManager
         for address in self._template['addresses']:
-            self.build_obj_using(AddressModelTemplate, {
+            self.build_obj_using(AddressSmartManager, {
                 'person': person.id,
                 'street': address['street'],
                 'city': address['city'],
             })
 ```
 
-Note that the ``PersonModelTemplate`` uses the ``build_obj_using`` function to build an object using another model template. This ensures that the objects managed by that model template are also managed by the calling model template.
+Note that the ``PersonSmartManager`` uses the ``build_obj_using`` function to build an object using another model template. This ensures that the objects managed by that model template are also managed by the calling model template.
 
-Similarly, one can now make a ``ModelTemplate`` object using this model template class to manage a complete ``Person`` object.
+Similarly, one can now make a ``SmartManager`` object using this model template class to manage a complete ``Person`` object.
