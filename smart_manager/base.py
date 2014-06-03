@@ -3,7 +3,7 @@ from copy import deepcopy
 from manager_utils import upsert
 
 
-class BaseModelTemplate(object):
+class BaseSmartManager(object):
     def __init__(self, template):
         self._template = deepcopy(template)
         self._built_objs = set()
@@ -22,14 +22,14 @@ class BaseModelTemplate(object):
 
         return built_obj
 
-    def build_obj_using(self, model_template_class, template):
+    def build_obj_using(self, smart_manager_class, template):
         """
         Builds objects using another builder and a template. Adds the resulting built objects
         from that builder to the built objects of this builder.
         """
-        model_template = model_template_class(template)
-        built_obj = model_template.build()
-        self._built_objs |= model_template.built_objs
+        smart_manager = smart_manager_class(template)
+        built_obj = smart_manager.build()
+        self._built_objs |= smart_manager.built_objs
 
         return built_obj
 

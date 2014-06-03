@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from model_template import admin
+from smart_manager import admin
 
 
 class AdminTest(TestCase):

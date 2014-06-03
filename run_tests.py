@@ -22,7 +22,7 @@ def run_tests(*test_args, **kwargs):
         patch_for_test_db_setup()
 
     if not test_args:
-        test_args = ['model_template']
+        test_args = ['smart_manager']
 
     kwargs.setdefault('interactive', False)
 
