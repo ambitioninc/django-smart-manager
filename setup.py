@@ -25,7 +25,7 @@ setup(
     url='https://github.com/ambitioninc/django-model-template',
     author='Wes Kendall',
     author_email='opensource@ambition.com',
-    keywords='Django',
+    keywords='Django, Models, ORM, Manager, Templates',
     packages=find_packages(),
     classifiers=[
         'Programming Language :: Python',
@@ -37,9 +37,11 @@ setup(
     license='MIT',
     install_requires=[
         'django>=1.6',
+        'django-manager-utils>=0.5.1',
     ],
     tests_require=[
         'psycopg2',
+        'django-dynamic-fixture',
         'django-nose',
         'south',
         'mock',
