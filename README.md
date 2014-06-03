@@ -1,14 +1,14 @@
-[![Build Status](https://travis-ci.org/ambitioninc/django-entity.png)](https://travis-ci.org/ambitioninc/django-model-template)
-Django Model Template
+[![Build Status](https://travis-ci.org/ambitioninc/django-entity.png)](https://travis-ci.org/ambitioninc/django-smart-manager)
+Django Smart Manager
 ==================
-Django Model Template provides a simple framework for representing and managing Django models from serializable templates.
+Django Smart Manager provides a simple framework for representing and managing Django models from serializable templates.
 
 
 #Problem Overview
 
 Oftentimes what we model in Django spans multiple objects and tables. Managing a single object that is represented by multiple models can be quite cumbersome through the shell or through basic Django administration. This app provides a framework such that a user can write templates that represent many models and complex relationships.
 
-For example, assume that you model a person. The ``Person`` model contains a unique identifier for that person, multiple ``PhoneNumber`` models that point to it, and multiple ``Address`` models. With Django Model Template, one can construct a template in the following manner:
+For example, assume that you model a person. The ``Person`` model contains a unique identifier for that person, multiple ``PhoneNumber`` models that point to it, and multiple ``Address`` models. With Django Smart Manager, one can construct a template in the following manner:
 
 ```python
 {
@@ -82,7 +82,7 @@ mt = SmartManager.objects.create(smart_manager_class='path.to.AddressSmartManage
 
 Once this model is created, it manages all of the objects associated with the template. If the user was to change the template and save the ``mt`` variable from the example, the underlying ``Address`` model would be updated. Similarly, the underlying ``Address`` model will also be deleted when ``mt`` is deleted. The deletion behavior can be turned off by specifying ``manages_deletions=False`` in the creation of the model template.
 
-While this example is trivial, the power of Django Model Template is unleashed when you start to build more and more complex objects that need ot be managed. Let's assume that the user can now build the associated ``PhoneNumberSmartManager`` class for creating ``PhoneNumber`` objects and move on to creating the ``PersonSmartManager`` model template class:
+While this example is trivial, the power of Django Smart Manager is unleashed when you start to build more and more complex objects that need ot be managed. Let's assume that the user can now build the associated ``PhoneNumberSmartManager`` class for creating ``PhoneNumber`` objects and move on to creating the ``PersonSmartManager`` model template class:
 
 ```python
 class PersonSmartManager(BaseSmartManager):
