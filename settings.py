@@ -22,12 +22,12 @@ def configure_settings():
             db_config = {
                 'ENGINE': 'django.db.backends.postgresql_psycopg2',
                 'USER': 'postgres',
-                'NAME': 'model_template',
+                'NAME': 'smart_manager',
             }
         elif test_db == 'sqlite':
             db_config = {
                 'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': 'model_template',
+                'NAME': 'smart_manager',
             }
         else:
             raise RuntimeError('Unsupported test DB {0}'.format(test_db))
@@ -42,9 +42,9 @@ def configure_settings():
                 'django.contrib.sessions',
                 'django.contrib.admin',
                 'south',
-                'model_template',
-                'model_template.tests',
+                'smart_manager',
+                'smart_manager.tests',
             ),
-            ROOT_URLCONF='model_template.urls',
+            ROOT_URLCONF='smart_manager.urls',
             DEBUG=False,
         )

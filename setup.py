@@ -9,7 +9,7 @@ def get_version():
     """
     Extracts the version number from the version.py file.
     """
-    VERSION_FILE = 'model_template/version.py'
+    VERSION_FILE = 'smart_manager/version.py'
     mo = re.search(r'^__version__ = [\'"]([^\'"]*)[\'"]', open(VERSION_FILE, 'rt').read(), re.M)
     if mo:
         return mo.group(1)
@@ -18,11 +18,11 @@ def get_version():
 
 
 setup(
-    name='django-model-template',
+    name='django-smart-manager',
     version=get_version(),
     description='Make templates that manage models',
     long_description=open('README.md').read(),
-    url='https://github.com/ambitioninc/django-model-template',
+    url='https://github.com/ambitioninc/django-smart-manager',
     author='Wes Kendall',
     author_email='opensource@ambition.com',
     keywords='Django, Models, ORM, Manager, Templates',
@@ -45,7 +45,6 @@ setup(
         'django-dynamic-fixture',
         'django-nose',
         'south',
-        'mock',
     ],
     test_suite='run_tests.run_tests',
     include_package_data=True,

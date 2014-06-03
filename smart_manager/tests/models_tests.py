@@ -1,22 +1,22 @@
 from django.test import TestCase
 from django_dynamic_fixture import G
 
-from model_template import ModelTemplate
-from model_template.tests.models import UpsertModel
+from smart_manager import SmartManager
+from smart_manager.tests.models import UpsertModel
 
 
-class ModelTemplateTest(TestCase):
+class SmartManagerTest(TestCase):
     """
-    Tests custom functionality in the ModelTemplate class.
+    Tests custom functionality in the SmartManager class.
     """
     def test_template_changes(self):
         """
         Tests chaning the template and resaving.
         """
-        model_template = G(
-            ModelTemplate,
+        smart_manager = G(
+            SmartManager,
             manages_deletions=True,
-            model_template_class='model_template.tests.model_templates.UpsertModelListTemplate',
+            smart_manager_class='smart_manager.tests.smart_managers.UpsertModelListTemplate',
             template=[{
                 'char_field': 'hi',
                 'int_field': 1,
@@ -30,26 +30,26 @@ class ModelTemplateTest(TestCase):
         self.assertTrue(UpsertModel.objects.filter(char_field='hi', int_field=1).exists())
         self.assertTrue(UpsertModel.objects.filter(char_field='hello', int_field=2).exists())
 
-        model_template.template = [{
+        smart_manager.template = [{
             'char_field': 'hi',
             'int_field': 1,
         }]
-        model_template.save()
+        smart_manager.save()
 
         self.assertEquals(UpsertModel.objects.count(), 1)
         self.assertTrue(UpsertModel.objects.filter(char_field='hi', int_field=1).exists())
 
-        model_template.delete()
+        smart_manager.delete()
         self.assertFalse(UpsertModel.objects.exists())
 
     def test_template_changes_no_deletions(self):
         """
         Tests chaning the template and resaving when the template model does not manage deletions.
         """
-        model_template = G(
-            ModelTemplate,
+        smart_manager = G(
+            SmartManager,
             manages_deletions=False,
-            model_template_class='model_template.tests.model_templates.UpsertModelListTemplate',
+            smart_manager_class='smart_manager.tests.smart_managers.UpsertModelListTemplate',
             template=[{
                 'char_field': 'hi',
                 'int_field': 1,
@@ -63,26 +63,26 @@ class ModelTemplateTest(TestCase):
         self.assertTrue(UpsertModel.objects.filter(char_field='hi', int_field=1).exists())
         self.assertTrue(UpsertModel.objects.filter(char_field='hello', int_field=2).exists())
 
-        model_template.template = [{
+        smart_manager.template = [{
             'char_field': 'hi',
             'int_field': 1,
         }]
-        model_template.save()
+        smart_manager.save()
 
         self.assertEquals(UpsertModel.objects.count(), 2)
         self.assertTrue(UpsertModel.objects.filter(char_field='hi', int_field=1).exists())
         self.assertTrue(UpsertModel.objects.filter(char_field='hello', int_field=2).exists())
 
-        model_template.delete()
+        smart_manager.delete()
         self.assertEquals(UpsertModel.objects.count(), 2)
         self.assertTrue(UpsertModel.objects.filter(char_field='hi', int_field=1).exists())
         self.assertTrue(UpsertModel.objects.filter(char_field='hello', int_field=2).exists())
 
     def test_build_multiple_distinct_objs_delete(self):
-        model_template = G(
-            ModelTemplate,
+        smart_manager = G(
+            SmartManager,
             manages_deletions=True,
-            model_template_class='model_template.tests.model_templates.UpsertModelListTemplate',
+            smart_manager_class='smart_manager.tests.smart_managers.UpsertModelListTemplate',
             template=[{
                 'char_field': 'hi',
                 'int_field': 1,
@@ -92,20 +92,20 @@ class ModelTemplateTest(TestCase):
             }],
         )
         # Simulate re-saving
-        model_template.save()
+        smart_manager.save()
 
         self.assertEquals(UpsertModel.objects.count(), 2)
         self.assertTrue(UpsertModel.objects.filter(char_field='hi', int_field=1).exists())
         self.assertTrue(UpsertModel.objects.filter(char_field='hello', int_field=2).exists())
 
-        model_template.delete()
+        smart_manager.delete()
         self.assertFalse(UpsertModel.objects.exists())
 
     def test_build_multiple_same_objs(self):
-        model_template = G(
-            ModelTemplate,
+        smart_manager = G(
+            SmartManager,
             manages_deletions=True,
-            model_template_class='model_template.tests.model_templates.UpsertModelListTemplate',
+            smart_manager_class='smart_manager.tests.smart_managers.UpsertModelListTemplate',
             template=[{
                 'char_field': 'hi',
                 'int_field': 1,
@@ -115,58 +115,58 @@ class ModelTemplateTest(TestCase):
             }],
         )
         # Simulate re-saving
-        model_template.save()
+        smart_manager.save()
 
         self.assertEquals(UpsertModel.objects.count(), 1)
         self.assertTrue(UpsertModel.objects.filter(char_field='hi', int_field=1).exists())
 
-        model_template.delete()
+        smart_manager.delete()
         self.assertFalse(UpsertModel.objects.exists())
 
     def test_deletion_valid_obj_deletions_set(self):
         """
         Tests deletion of a valid object when deletions are set.
         """
-        model_template = G(
-            ModelTemplate,
+        smart_manager = G(
+            SmartManager,
             manages_deletions=True,
-            model_template_class='model_template.tests.model_templates.UpsertModelTemplate',
+            smart_manager_class='smart_manager.tests.smart_managers.UpsertSmartManager',
             template={
                 'char_field': 'hi',
                 'int_field': 1,
             },
         )
         # Simulate re-saving
-        model_template.save()
+        smart_manager.save()
 
         upsert_model = UpsertModel.objects.get()
         self.assertEquals(upsert_model.char_field, 'hi')
         self.assertEquals(upsert_model.int_field, 1)
 
         # Delete the model template object, resulting in the deleting of the object it manages
-        model_template.delete()
+        smart_manager.delete()
         self.assertEquals(UpsertModel.objects.count(), 0)
 
     def test_deletion_valid_obj_deletions_not_set(self):
         """
         Tests deletion of a valid object when deletions are not set.
         """
-        model_template = G(
-            ModelTemplate,
+        smart_manager = G(
+            SmartManager,
             manages_deletions=False,
-            model_template_class='model_template.tests.model_templates.UpsertModelTemplate',
+            smart_manager_class='smart_manager.tests.smart_managers.UpsertSmartManager',
             template={
                 'char_field': 'hi',
                 'int_field': 1,
             },
         )
         # Simulate re-saving
-        model_template.save()
+        smart_manager.save()
 
         upsert_model = UpsertModel.objects.get()
         self.assertEquals(upsert_model.char_field, 'hi')
         self.assertEquals(upsert_model.int_field, 1)
 
         # Delete the model template object, resulting in the deleting of the object it manages
-        model_template.delete()
+        smart_manager.delete()
         self.assertEquals(UpsertModel.objects.count(), 1)

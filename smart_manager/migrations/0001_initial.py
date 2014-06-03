@@ -8,37 +8,37 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'ModelTemplate'
-        db.create_table(u'model_template_modeltemplate', (
+        # Adding model 'SmartManager'
+        db.create_table(u'smart_manager_smartmanager', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('model_template_class', self.gf('django.db.models.fields.CharField')(max_length=128)),
+            ('smart_manager_class', self.gf('django.db.models.fields.CharField')(max_length=128)),
             ('manages_deletions', self.gf('django.db.models.fields.BooleanField')(default=True)),
             ('template', self.gf('jsonfield.fields.JSONField')()),
         ))
-        db.send_create_signal(u'model_template', ['ModelTemplate'])
+        db.send_create_signal(u'smart_manager', ['SmartManager'])
 
-        # Adding model 'ModelTemplateObject'
-        db.create_table(u'model_template_modeltemplateobject', (
+        # Adding model 'SmartManagerObject'
+        db.create_table(u'smart_manager_smartmanagerobject', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('model_template', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['model_template.ModelTemplate'])),
+            ('smart_manager', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['smart_manager.SmartManager'])),
             ('model_obj_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'])),
             ('model_obj_id', self.gf('django.db.models.fields.PositiveIntegerField')()),
         ))
-        db.send_create_signal(u'model_template', ['ModelTemplateObject'])
+        db.send_create_signal(u'smart_manager', ['SmartManagerObject'])
 
-        # Adding unique constraint on 'ModelTemplateObject', fields ['model_template', 'model_obj_type', 'model_obj_id']
-        db.create_unique(u'model_template_modeltemplateobject', ['model_template_id', 'model_obj_type_id', 'model_obj_id'])
+        # Adding unique constraint on 'SmartManagerObject', fields ['smart_manager', 'model_obj_type', 'model_obj_id']
+        db.create_unique(u'smart_manager_smartmanagerobject', ['smart_manager_id', 'model_obj_type_id', 'model_obj_id'])
 
 
     def backwards(self, orm):
-        # Removing unique constraint on 'ModelTemplateObject', fields ['model_template', 'model_obj_type', 'model_obj_id']
-        db.delete_unique(u'model_template_modeltemplateobject', ['model_template_id', 'model_obj_type_id', 'model_obj_id'])
+        # Removing unique constraint on 'SmartManagerObject', fields ['smart_manager', 'model_obj_type', 'model_obj_id']
+        db.delete_unique(u'smart_manager_smartmanagerobject', ['smart_manager_id', 'model_obj_type_id', 'model_obj_id'])
 
-        # Deleting model 'ModelTemplate'
-        db.delete_table(u'model_template_modeltemplate')
+        # Deleting model 'SmartManager'
+        db.delete_table(u'smart_manager_smartmanager')
 
-        # Deleting model 'ModelTemplateObject'
-        db.delete_table(u'model_template_modeltemplateobject')
+        # Deleting model 'SmartManagerObject'
+        db.delete_table(u'smart_manager_smartmanagerobject')
 
 
     models = {
@@ -49,20 +49,20 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        u'model_template.modeltemplate': {
-            'Meta': {'object_name': 'ModelTemplate'},
+        u'smart_manager.smartmanager': {
+            'Meta': {'object_name': 'SmartManager'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'manages_deletions': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'model_template_class': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
+            'smart_manager_class': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'template': ('jsonfield.fields.JSONField', [], {})
         },
-        u'model_template.modeltemplateobject': {
-            'Meta': {'unique_together': "(('model_template', 'model_obj_type', 'model_obj_id'),)", 'object_name': 'ModelTemplateObject'},
+        u'smart_manager.smartmanagerobject': {
+            'Meta': {'unique_together': "(('smart_manager', 'model_obj_type', 'model_obj_id'),)", 'object_name': 'SmartManagerObject'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'model_obj_id': ('django.db.models.fields.PositiveIntegerField', [], {}),
             'model_obj_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
-            'model_template': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['model_template.ModelTemplate']"})
+            'smart_manager': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['smart_manager.SmartManager']"})
         }
     }
 
-    complete_apps = ['model_template']
+    complete_apps = ['smart_manager']
