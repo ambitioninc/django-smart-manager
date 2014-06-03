@@ -46,7 +46,7 @@ In order to achieve the ability of specifying the ``Person`` model (and its rela
 
 For the sake of example, let's assume we're going to build three model template classes: one to manage addresses, one to manage phone numbers, and one to manage a person and its associated addresses and phone numbers. We'll begin from the bottom up by building the ``Address`` model template. The code for this is shown below:
 
-```
+```python
 from model_template import BaseModelTemplate
 
 
