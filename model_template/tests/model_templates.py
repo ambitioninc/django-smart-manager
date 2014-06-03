@@ -1,4 +1,4 @@
-from model_template.base import BaseModelTemplate
+from model_template import BaseModelTemplate
 from model_template.tests.models import UpsertModel
 
 

@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django_dynamic_fixture import G
 
-from model_template.models import ModelTemplate
+from model_template import ModelTemplate
 from model_template.tests.models import UpsertModel
 
 
