@@ -1,8 +1,10 @@
+import traceback
+
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
-from django.db import models
+from django.core.exceptions import ValidationError
+from django.db import models, transaction
 from django.db.models.signals import pre_delete
-from django.db.transaction import atomic
 from django.dispatch import receiver
 from django.utils.module_loading import import_by_path
 from manager_utils import sync
@@ -25,7 +27,18 @@ class SmartManager(models.Model):
     # The template of the model(s) being managed
     template = JSONField()
 
-    @atomic
+    def clean(self):
+        """
+        Verify that the object can be built and the template class can be loaded. If any exception happens, raise
+        a validation error.
+        """
+        try:
+            smart_manager = import_by_path(self.smart_manager_class)(self.template)
+            smart_manager.build()
+        except Exception, e:
+            raise ValidationError(u'{0} - {1}'.format(str(e), traceback.format_exc()))
+
+    @transaction.atomic
     def save(self, *args, **kwargs):
         """
         Builds the objects managed by the template before saving the template.

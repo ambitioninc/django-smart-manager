@@ -1,8 +1,56 @@
-from django.test import TestCase
-from django_dynamic_fixture import G
+from django.core.exceptions import ValidationError
+from django.test import TestCase, TransactionTestCase
+from django_dynamic_fixture import G, N
 
 from smart_manager import SmartManager
 from smart_manager.tests.models import UpsertModel
+
+
+class ValidationTest(TransactionTestCase):
+    """
+    Tests that validation works appropriately.
+    """
+    def test_invalid_load_path(self):
+        """
+        Tests that a validation error is raised on an invalid class path for the smart manager.
+        """
+        smart_manager = N(
+            SmartManager,
+            manages_deletions=True,
+            smart_manager_class='smart_manager.tests.smart_managers.InvalidModelTemplate',
+            template={},
+        )
+        with self.assertRaises(ValidationError):
+            smart_manager.clean()
+
+    def test_invalid_template(self):
+        """
+        Tests that a validation error is raised on an invalid template
+        """
+        smart_manager = N(
+            SmartManager,
+            manages_deletions=True,
+            smart_manager_class='smart_manager.tests.smart_managers.UpsertModelListTemplate',
+            template={'invalid': 'invalid'},
+        )
+        with self.assertRaises(ValidationError):
+            smart_manager.clean()
+
+    def test_valid_template(self):
+        """
+        Tests that a validation error is not raised on a valid template
+        """
+        self.assertFalse(UpsertModel.objects.exists())
+        smart_manager = N(
+            SmartManager,
+            manages_deletions=True,
+            smart_manager_class='smart_manager.tests.smart_managers.UpsertModelListTemplate',
+            template=[{
+                'char_field': 'valid',
+                'int_field': 1
+            }],
+        )
+        smart_manager.clean()
 
 
 class SmartManagerTest(TestCase):
