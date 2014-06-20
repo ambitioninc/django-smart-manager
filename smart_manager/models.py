@@ -7,7 +7,7 @@ from django.db import models, transaction
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.utils.module_loading import import_by_path
-from manager_utils import sync
+from manager_utils import sync, ManagerUtilsManager
 
 from jsonfield import JSONField
 
@@ -29,6 +29,8 @@ class SmartManager(models.Model):
 
     # The template of the model(s) being managed
     template = JSONField()
+
+    objects = ManagerUtilsManager()
 
     def clean(self):
         """
