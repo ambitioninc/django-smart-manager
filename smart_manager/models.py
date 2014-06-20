@@ -7,7 +7,7 @@ from django.db import models, transaction
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.utils.module_loading import import_by_path
-from manager_utils import sync
+from manager_utils import sync, ManagerUtilsManager
 
 from jsonfield import JSONField
 
@@ -17,6 +17,9 @@ class SmartManager(models.Model):
     Specifies the template, its associated model template class, and whether or not deletions should
     be managed by this model template.
     """
+    # A unique identifier to load smart managers by name
+    name = models.CharField(max_length=128, unique=True)
+
     # The loadable model template class that inherits BaseSmartManager
     smart_manager_class = models.CharField(max_length=128)
 
@@ -26,6 +29,8 @@ class SmartManager(models.Model):
 
     # The template of the model(s) being managed
     template = JSONField()
+
+    objects = ManagerUtilsManager()
 
     def clean(self):
         """

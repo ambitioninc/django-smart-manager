@@ -21,3 +21,6 @@ env/
 
 # OSX
 .DS_Store
+
+# pycharm
+.idea
