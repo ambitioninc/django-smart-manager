@@ -8,7 +8,7 @@ class Migration(DataMigration):
 
     def forwards(self, orm):
         for i, smart_manager in enumerate(orm.SmartManager.objects.all()):
-            smart_manager.name = smart_manager.smart_manager_class
+            smart_manager.name = '{0} {1}'.format(smart_manager.smart_manager_class, i)
             smart_manager.save()
 
     def backwards(self, orm):
