@@ -32,6 +32,9 @@ class SmartManager(models.Model):
 
     objects = ManagerUtilsManager()
 
+    def __unicode__(self):
+        return self.name
+
     def clean(self):
         """
         Verify that the object can be built and the template class can be loaded. If any exception happens, raise

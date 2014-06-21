@@ -57,6 +57,10 @@ class SmartManagerTest(TestCase):
     """
     Tests custom functionality in the SmartManager class.
     """
+    def test_unicode(self):
+        smart_manager = SmartManager(name='hi')
+        self.assertEquals(smart_manager.__unicode__(), 'hi')
+
     def test_template_changes(self):
         """
         Tests chaning the template and resaving.
