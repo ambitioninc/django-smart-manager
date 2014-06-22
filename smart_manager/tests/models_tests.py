@@ -2,8 +2,8 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase, TransactionTestCase
 from django_dynamic_fixture import G, N
 
-from smart_manager import SmartManager
-from smart_manager.tests.models import UpsertModel
+from smart_manager.models import SmartManager, SmartManagerObject
+from smart_manager.tests.models import UpsertModel, RelModel, CantCascadeModel
 
 
 class ValidationTest(TransactionTestCase):
@@ -174,6 +174,31 @@ class SmartManagerTest(TestCase):
 
         smart_manager.delete()
         self.assertFalse(UpsertModel.objects.exists())
+
+    def test_deletion_protected_model(self):
+        """
+        Tests when a cascade delete cant occur becasue of a protected model.
+        """
+        rel_model = G(RelModel)
+        G(CantCascadeModel, rel_model=rel_model)
+
+        smart_manager = G(
+            SmartManager,
+            manages_deletions=True,
+            smart_manager_class='smart_manager.tests.smart_managers.UpsertSmartManager',
+            template={
+                'char_field': 'hi',
+                'int_field': 1,
+            },
+        )
+        SmartManagerObject.objects.create(smart_manager=smart_manager, model_obj=rel_model)
+
+        smart_manager.delete()
+
+        # The rel model should still exist since its protected. The smart manager object
+        # should not
+        self.assertFalse(SmartManagerObject.objects.exists())
+        self.assertTrue(RelModel.objects.exists())
 
     def test_deletion_valid_obj_deletions_set(self):
         """
