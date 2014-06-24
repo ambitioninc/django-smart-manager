@@ -61,6 +61,39 @@ class SmartManagerTest(TestCase):
         smart_manager = SmartManager(name='hi')
         self.assertEquals(smart_manager.__unicode__(), 'hi')
 
+    def test_undeletable_object(self):
+        """
+        Tests deleting elements from the template of a smart manager when the elements are not
+        deletable.
+        """
+        smart_manager = G(
+            SmartManager,
+            manages_deletions=True,
+            smart_manager_class='smart_manager.tests.smart_managers.DontDeleteUpsertSmartManager',
+            template={
+                'char_field': 'hi',
+                'int_field': 1,
+            },
+        )
+
+        self.assertEquals(UpsertModel.objects.count(), 1)
+        self.assertTrue(UpsertModel.objects.filter(char_field='hi', int_field=1).exists())
+
+        # All objects should still exist even after deleting them from the template and deleting the
+        # smart manager itself
+        smart_manager.template = {
+            'char_field': 'hello',
+            'int_field': 2,
+        }
+        smart_manager.save()
+
+        self.assertEquals(UpsertModel.objects.count(), 2)
+        self.assertTrue(UpsertModel.objects.filter(char_field='hi', int_field=1).exists())
+        self.assertTrue(UpsertModel.objects.filter(char_field='hello', int_field=2).exists())
+
+        smart_manager.delete()
+        self.assertEquals(UpsertModel.objects.count(), 2)
+
     def test_template_changes(self):
         """
         Tests chaning the template and resaving.

@@ -12,13 +12,14 @@ class BaseSmartManager(object):
     def built_objs(self):
         return self._built_objs
 
-    def build_obj(self, model_class, updates=None, defaults=None, **kwargs):
+    def build_obj(self, model_class, is_deletable=True, updates=None, defaults=None, **kwargs):
         """
-        Builds an object using the upsert function in manager utils. All
-        built objects are added to the internal _built_objs list and returned.
+        Builds an object using the upsert function in manager utils. If the object can be deleted
+        by the smart manager, it is added to the internal _built_objs list and returned.
         """
         built_obj = upsert(model_class.objects, updates=updates, defaults=defaults, **kwargs)[0]
-        self._built_objs |= set([built_obj])
+        if is_deletable:
+            self._built_objs |= set([built_obj])
 
         return built_obj
 
