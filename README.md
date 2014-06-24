@@ -109,3 +109,6 @@ class PersonSmartManager(BaseSmartManager):
 Note that the ``PersonSmartManager`` uses the ``build_obj_using`` function to build an object using another model template. This ensures that the objects managed by that model template are also managed by the calling model template.
 
 Similarly, one can now make a ``SmartManager`` object using this model template class to manage a complete ``Person`` object.
+
+# Caveats with Smart Managers
+It is up to the programmer to ultimately define how a template manages its underlying objects. By default, Django Smart Manager will manage deletions of every object built using the ``build_obj`` function. This, however, can cause undesired side effects for some objects that simply should not be deleted if the template is deleted. If this is the case, a ``is_deletable`` kwarg can be passed to the ``build_obj`` function to override the default behavior of managing its deletion.

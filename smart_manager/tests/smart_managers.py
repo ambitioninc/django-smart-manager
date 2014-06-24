@@ -15,3 +15,10 @@ class UpsertModelListTemplate(BaseSmartManager):
             self.build_obj(UpsertModel, char_field=template['char_field'], updates={
                 'int_field': template['int_field'],
             })
+
+
+class DontDeleteUpsertSmartManager(BaseSmartManager):
+    def build(self):
+        self.build_obj(UpsertModel, char_field=self._template['char_field'], updates={
+            'int_field': self._template['int_field'],
+        }, is_deletable=False)
