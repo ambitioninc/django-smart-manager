@@ -57,7 +57,7 @@ class BaseSmartManagerTest(TestCase):
         self.assertEquals(UpsertModel.objects.count(), 1)
         self.assertEquals(smart_manager.built_objs, set([upsert_model]))
 
-    @patch('smart_manager.base.BaseSmartManager.build', spec_set=True)
+    @patch('smart_manager.tests.smart_managers.UpsertSmartManager.build', spec_set=True)
     def test_multi_build_using(self, mock_build):
         """
         Hits the branch for .build returning a list or tuple
