@@ -1,4 +1,5 @@
 from django.test import TestCase
+from mock import patch
 
 from smart_manager.base import BaseSmartManager
 from smart_manager.tests.smart_managers import UpsertSmartManager
@@ -47,10 +48,23 @@ class BaseSmartManagerTest(TestCase):
         Tests building using another model template.
         """
         smart_manager = BaseSmartManager({})
-        smart_manager.build_obj_using(UpsertSmartManager, {'int_field': 1, 'char_field': '2'})
+        built_objs = smart_manager.build_using(UpsertSmartManager, {'int_field': 1, 'char_field': '2'})
+        self.assertTrue(type(built_objs) in (list, tuple,))
 
         upsert_model = UpsertModel.objects.get()
         self.assertEquals(upsert_model.int_field, 1)
         self.assertEquals(upsert_model.char_field, '2')
         self.assertEquals(UpsertModel.objects.count(), 1)
         self.assertEquals(smart_manager.built_objs, set([upsert_model]))
+
+    @patch('smart_manager.tests.smart_managers.UpsertSmartManager.build', spec_set=True)
+    def test_multi_build_using(self, mock_build):
+        """
+        Hits the branch for .build returning a list or tuple
+        :type mock_build: Mock
+        """
+        mock_build.return_value = ['one', 'two']
+
+        smart_manager = BaseSmartManager({})
+        built_objs = smart_manager.build_using(UpsertSmartManager, {'int_field': 1, 'char_field': '2'})
+        self.assertTrue(type(built_objs) in (list, tuple,))

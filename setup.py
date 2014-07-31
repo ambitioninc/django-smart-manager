@@ -44,6 +44,7 @@ setup(
         'psycopg2',
         'django-dynamic-fixture',
         'django-nose',
+        'mock',
         'south',
     ],
     test_suite='run_tests.run_tests',
