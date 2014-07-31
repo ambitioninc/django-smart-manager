@@ -23,16 +23,20 @@ class BaseSmartManager(object):
 
         return built_obj
 
-    def build_obj_using(self, smart_manager_class, template):
+    def build_using(self, smart_manager_class, template):
         """
         Builds objects using another builder and a template. Adds the resulting built objects
         from that builder to the built objects of this builder.
         """
         smart_manager = smart_manager_class(template)
-        built_obj = smart_manager.build()
+        built_objs = smart_manager.build()
         self._built_objs |= smart_manager.built_objs
 
-        return built_obj
+        # make sure build objs is a list or tuple
+        if type(built_objs) not in (list, tuple,):
+            built_objs = [built_objs]
+
+        return built_objs
 
     def build(self):
         """

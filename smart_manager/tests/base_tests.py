@@ -47,7 +47,8 @@ class BaseSmartManagerTest(TestCase):
         Tests building using another model template.
         """
         smart_manager = BaseSmartManager({})
-        smart_manager.build_obj_using(UpsertSmartManager, {'int_field': 1, 'char_field': '2'})
+        built_objs = smart_manager.build_using(UpsertSmartManager, {'int_field': 1, 'char_field': '2'})
+        self.assertTrue(type(built_objs) in (list, tuple,))
 
         upsert_model = UpsertModel.objects.get()
         self.assertEquals(upsert_model.int_field, 1)
