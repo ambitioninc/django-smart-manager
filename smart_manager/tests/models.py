@@ -1,12 +1,20 @@
 from django.db import models
 
+from smart_manager import SmartManagerMixin, SmartModelMixin
 
-class UpsertModel(models.Model):
+
+class UpsertModelManager(models.Manager, SmartManagerMixin):
+    pass
+
+
+class UpsertModel(models.Model, SmartModelMixin):
     """
     A model for testing upserts.
     """
     char_field = models.CharField(max_length=128)
     int_field = models.IntegerField()
+
+    objects = UpsertModelManager()
 
 
 class RelModel(models.Model):
