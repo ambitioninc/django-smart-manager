@@ -125,6 +125,7 @@ class SmartModelMixin(object):
         is often deleted as well.
         """
         sm = self._get_smart_manager()
+        self.delete()
         if sm:
             sm.delete()
 

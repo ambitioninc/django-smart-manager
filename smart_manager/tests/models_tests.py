@@ -82,6 +82,29 @@ class SmartModelMixinTest(TestCase):
         self.assertEquals(um.char_field, 'valid2')
         self.assertEquals(um.int_field, 2)
 
+    def test_smart_delete_no_smart_manager(self):
+        """
+        Tests smart_delete when there was no previous smart manager.
+        """
+        um = G(UpsertModel, char_field='valid', int_field=1)
+        um.smart_delete()
+
+        self.assertFalse(UpsertModel.objects.filter(id=um.id).exists())
+
+    def test_smart_delete_w_smart_manager(self):
+        """
+        Tests smart_delete when a smart manager exists.
+        """
+        UpsertModel.objects.smart_create(UpsertModelListTemplate, [{
+            'char_field': 'valid',
+            'int_field': 1,
+        }])
+        um = UpsertModel.objects.get()
+        um.smart_delete()
+
+        self.assertFalse(UpsertModel.objects.exists())
+        self.assertFalse(SmartManager.objects.exists())
+
 
 class ValidationTest(TransactionTestCase):
     """
