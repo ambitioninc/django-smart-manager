@@ -4,7 +4,7 @@ Django Smart Manager
 Django Smart Manager provides a simple framework for representing and managing Django models from serializable templates.
 
 
-#Problem Overview
+# Problem Overview
 
 Oftentimes what we model in Django spans multiple objects and tables. Managing a single object that is represented by multiple models can be quite cumbersome through the shell or through basic Django administration. This app provides a framework such that a user can write templates that represent many models and complex relationships.
 
@@ -109,6 +109,19 @@ class PersonSmartManager(BaseSmartManager):
 Note that the ``PersonSmartManager`` uses the ``build_obj_using`` function to build an object using another model template. This ensures that the objects managed by that model template are also managed by the calling model template.
 
 Similarly, one can now make a ``SmartManager`` object using this model template class to manage a complete ``Person`` object.
+
+# Using Smart Managers Directly with Django Models and Managers
+Smart mangers can be directly used by models and managers in Django. All they need to do is inherit the ``SmartModelMixin`` or ``SmartManagerMixin``. If a model inherits ``SmartModelMixin``, it is provided a ``smart_upsert`` and ``smart_delete`` function. These function both take a smart manager class and template. The ``smart_upsert`` function upserts the template using the smart manager that linked to it (or creating a smart manager if it doesn't exist). The ``smart_delete`` function will delete the smart manager that is associated with the model, which in turn deletes all other objects managed by that smart manager.
+
+If a Django model manager inherits ``SmartManagerMixin``, it is provided a ``smart_create`` function that takes a smart manager class and template. The objects are created using the template and a smart manager is returned.
+
+These methods are meant as convenience methods so that a user can still interact with their models and not have to directly query smart managers.
+
+Note that all functions return a smart manager, and the mixins can be imported directly from ``smart_manager`` as so:
+
+```python
+from smart_manager import SmartModelMixin, SmartManagerMixin
+```
 
 # Caveats with Smart Managers
 It is up to the programmer to ultimately define how a template manages its underlying objects. By default, Django Smart Manager will manage deletions of every object built using the ``build_obj`` function. This, however, can cause undesired side effects for some objects that simply should not be deleted if the template is deleted. If this is the case, a ``is_deletable`` kwarg can be passed to the ``build_obj`` function to override the default behavior of managing its deletion.
