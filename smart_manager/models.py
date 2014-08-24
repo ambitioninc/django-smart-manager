@@ -1,3 +1,4 @@
+import inspect
 import traceback
 
 from django.contrib.contenttypes import generic
@@ -18,7 +19,7 @@ class SmartManager(models.Model):
     be managed by this model template.
     """
     # A unique identifier to load smart managers by name
-    name = models.CharField(max_length=128, unique=True)
+    name = models.CharField(max_length=128, unique=True, null=True, default=None)
 
     # The loadable model template class that inherits BaseSmartManager
     smart_manager_class = models.CharField(max_length=128)
@@ -81,8 +82,67 @@ class SmartManagerObject(models.Model):
     model_obj_id = models.PositiveIntegerField()
     model_obj = generic.GenericForeignKey('model_obj_type', 'model_obj_id', for_concrete_model=False)
 
+    objects = ManagerUtilsManager()
+
     class Meta:
-        unique_together = ('smart_manager', 'model_obj_type', 'model_obj_id')
+        unique_together = ('model_obj_type', 'model_obj_id')
+
+
+class SmartModelMixin(object):
+    """
+    A mixin for django models that provides smart manager behavior. The functions provided for models are
+
+    smart_upsert: Upsert an existing model with a provided smart manager class and template,
+    smart_delete: Delete an existing model and flush its associated smart manager.
+    """
+    def _get_smart_manager(self):
+        """
+        Gets the smart manager associated with this object or None if it doesn't have one.
+        """
+        smo = SmartManagerObject.objects.get_or_none(
+            model_obj_type=ContentType.objects.get_for_model(self, for_concrete_model=False),
+            model_obj_id=self.id)
+        return smo.smart_manager if smo else None
+
+    def smart_upsert(self, sm_class, sm_template):
+        """
+        Upserts an existing model using a smart manager class and template.
+        """
+        if not self.id:
+            raise ValueError('Cannot call smart_upsert on a non-persisted model')
+
+        sm = self._get_smart_manager()
+        return SmartManager.objects.upsert(
+            id=sm.id if sm else None,
+            updates={
+                'template': sm_template,
+                'smart_manager_class': '{0}.{1}'.format(inspect.getmodule(sm_class).__name__, sm_class.__name__),
+            })[0]
+
+    def smart_delete(self):
+        """
+        Deletes the object's smart manager. Note that the object is normally managed by the smart manager, so the object
+        is often deleted as well.
+        """
+        sm = self._get_smart_manager()
+        self.delete()
+        if sm:
+            sm.delete()
+
+
+class SmartManagerMixin(object):
+    """
+    Provides additional "smart" functions for Django model managers, including:
+
+    smart_create: Creates an object using a smart manager and returns the smart manager.
+    """
+    def smart_create(self, sm_class, sm_template):
+        """
+        Given a smart manager class and template, constructs the object using the smart manager,
+        and returns the smart manager object.
+        """
+        sm_class_path = '{0}.{1}'.format(inspect.getmodule(sm_class).__name__, sm_class.__name__)
+        return SmartManager.objects.create(smart_manager_class=sm_class_path, template=sm_template)
 
 
 @receiver(pre_delete, sender=SmartManagerObject, dispatch_uid='delete_model_obj_on_smart_manager_object_delete')

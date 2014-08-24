@@ -1,15 +1,134 @@
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.test import TestCase, TransactionTestCase
 from django_dynamic_fixture import G, N
 
 from smart_manager.models import SmartManager, SmartManagerObject
 from smart_manager.tests.models import UpsertModel, RelModel, CantCascadeModel
+from smart_manager.tests.smart_managers import UpsertModelListTemplate
+
+
+class SmartManagerMixinTest(TransactionTestCase):
+    """
+    Tests the SmartManagerMixin class.
+    """
+    def test_smart_create(self):
+        """
+        Tests smart_create.
+        """
+        sm = UpsertModel.objects.smart_create(
+            UpsertModelListTemplate, [{
+                'char_field': 'valid',
+                'int_field': 1,
+            }])
+        self.assertIsNone(sm.name)
+        self.assertIsNotNone(sm.id)
+        self.assertEquals(sm.smart_manager_class, 'smart_manager.tests.smart_managers.UpsertModelListTemplate')
+        self.assertEquals(UpsertModel.objects.count(), 1)
+        self.assertTrue(UpsertModel.objects.filter(char_field='valid', int_field=1).exists())
+
+    def test_smart_dup_create(self):
+        """
+        Tests smart_create with integrity errors.
+        """
+        UpsertModel.objects.smart_create(
+            UpsertModelListTemplate, [{
+                'char_field': 'valid',
+                'int_field': 1,
+            }])
+        with self.assertRaises(IntegrityError):
+            UpsertModel.objects.smart_create(
+                UpsertModelListTemplate, [{
+                    'char_field': 'valid',
+                    'int_field': 1,
+                }])
+
+
+class SmartModelMixinTest(TestCase):
+    """
+    Tests functionality in the SmartModelMixin.
+    """
+    def test_smart_upsert_non_persisted(self):
+        """
+        Tests a smart upsert on a non persisted model.
+        """
+        with self.assertRaises(ValueError):
+            UpsertModel().smart_upsert(UpsertModelListTemplate, [{
+                'char_field': 'valid',
+                'int_field': 1,
+            }])
+
+    def test_smart_upsert(self):
+        """
+        Tests a smart upsert
+        """
+        um = G(UpsertModel, char_field='valid', int_field=1)
+
+        um.smart_upsert(UpsertModelListTemplate, [{
+            'char_field': 'valid',
+            'int_field': 1,
+        }])
+        self.assertEquals(SmartManager.objects.count(), 1)
+        self.assertEquals(SmartManagerObject.objects.count(), 1)
+
+        um.smart_upsert(UpsertModelListTemplate, [{
+            'char_field': 'valid2',
+            'int_field': 2,
+        }])
+        self.assertEquals(SmartManager.objects.count(), 1)
+        self.assertEquals(SmartManagerObject.objects.count(), 1)
+
+        um = UpsertModel.objects.get()
+        self.assertEquals(um.char_field, 'valid2')
+        self.assertEquals(um.int_field, 2)
+
+    def test_smart_delete_no_smart_manager(self):
+        """
+        Tests smart_delete when there was no previous smart manager.
+        """
+        um = G(UpsertModel, char_field='valid', int_field=1)
+        um.smart_delete()
+
+        self.assertFalse(UpsertModel.objects.filter(id=um.id).exists())
+
+    def test_smart_delete_w_smart_manager(self):
+        """
+        Tests smart_delete when a smart manager exists.
+        """
+        UpsertModel.objects.smart_create(UpsertModelListTemplate, [{
+            'char_field': 'valid',
+            'int_field': 1,
+        }])
+        um = UpsertModel.objects.get()
+        um.smart_delete()
+
+        self.assertFalse(UpsertModel.objects.exists())
+        self.assertFalse(SmartManager.objects.exists())
 
 
 class ValidationTest(TransactionTestCase):
     """
     Tests that validation works appropriately.
     """
+    def test_multi_null(self):
+        """
+        Tests that multiple smart managers with a null name can be created.
+        """
+        SmartManager.objects.create(
+            name=None, smart_manager_class='smart_manager.tests.smart_managers.UpsertModelListTemplate',
+            template=[{
+                'char_field': 'valid1',
+                'int_field': 1
+            }],
+        )
+        SmartManager.objects.create(
+            name=None, smart_manager_class='smart_manager.tests.smart_managers.UpsertModelListTemplate',
+            template=[{
+                'char_field': 'valid2',
+                'int_field': 1
+            }],
+        )
+
     def test_invalid_load_path(self):
         """
         Tests that a validation error is raised on an invalid class path for the smart manager.
