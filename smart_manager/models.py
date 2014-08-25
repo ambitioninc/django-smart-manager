@@ -34,7 +34,7 @@ class SmartManager(models.Model):
     objects = ManagerUtilsManager()
 
     def __unicode__(self):
-        return self.name
+        return unicode(self.name)
 
     def clean(self):
         """
