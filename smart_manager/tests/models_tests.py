@@ -233,7 +233,7 @@ class SmartManagerTest(TestCase):
         self.assertEquals(smart_manager.primary_obj_id, UpsertModel.objects.get().id)
         self.assertEquals(smart_manager.primary_obj_type, ContentType.objects.get_for_model(UpsertModel))
 
-	# Refresh the smart manager and verify the primary object params were persisted
+        # Refresh the smart manager and verify the primary object params were persisted
         smart_manager = SmartManager.objects.get(id=smart_manager.id)
         self.assertEquals(smart_manager.primary_obj_id, UpsertModel.objects.get().id)
         self.assertEquals(smart_manager.primary_obj_type, ContentType.objects.get_for_model(UpsertModel))
