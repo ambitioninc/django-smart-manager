@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.test import TestCase, TransactionTestCase
@@ -212,6 +213,30 @@ class SmartManagerTest(TestCase):
 
         smart_manager.delete()
         self.assertEquals(UpsertModel.objects.count(), 2)
+
+    def test_primary_obj_set(self):
+        """
+        Tests that the primary object is set during saving.
+        """
+        smart_manager = G(
+            SmartManager,
+            manages_deletions=True,
+            smart_manager_class='smart_manager.tests.smart_managers.UpsertSmartManager',
+            template={
+                'char_field': 'hi',
+                'int_field': 1,
+            },
+        )
+
+        self.assertEquals(UpsertModel.objects.count(), 1)
+        self.assertTrue(UpsertModel.objects.filter(char_field='hi', int_field=1).exists())
+        self.assertEquals(smart_manager.primary_obj_id, UpsertModel.objects.get().id)
+        self.assertEquals(smart_manager.primary_obj_type, ContentType.objects.get_for_model(UpsertModel))
+
+	# Refresh the smart manager and verify the primary object params were persisted
+        smart_manager = SmartManager.objects.get(id=smart_manager.id)
+        self.assertEquals(smart_manager.primary_obj_id, UpsertModel.objects.get().id)
+        self.assertEquals(smart_manager.primary_obj_type, ContentType.objects.get_for_model(UpsertModel))
 
     def test_template_changes(self):
         """

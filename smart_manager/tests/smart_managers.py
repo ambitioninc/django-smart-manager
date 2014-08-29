@@ -4,7 +4,7 @@ from smart_manager.tests.models import UpsertModel
 
 class UpsertSmartManager(BaseSmartManager):
     def build(self):
-        self.build_obj(UpsertModel, char_field=self._template['char_field'], updates={
+        return self.build_obj(UpsertModel, char_field=self._template['char_field'], updates={
             'int_field': self._template['int_field'],
         })
 
@@ -19,6 +19,6 @@ class UpsertModelListTemplate(BaseSmartManager):
 
 class DontDeleteUpsertSmartManager(BaseSmartManager):
     def build(self):
-        self.build_obj(UpsertModel, char_field=self._template['char_field'], updates={
+        return self.build_obj(UpsertModel, char_field=self._template['char_field'], updates={
             'int_field': self._template['int_field'],
         }, is_deletable=False)
