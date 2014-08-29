@@ -28,6 +28,11 @@ class SmartManager(models.Model):
     # (or the template itself) is deleted
     manages_deletions = models.BooleanField(default=True)
 
+    # The primary object that this smart manager manages
+    primary_obj_type = models.ForeignKey(ContentType, null=True)
+    primary_obj_id = models.PositiveIntegerField(default=0)
+    primary_obj = generic.GenericForeignKey('primary_obj_type', 'primary_obj_id')
+
     # The template of the model(s) being managed
     template = JSONField()
 
@@ -54,9 +59,16 @@ class SmartManager(models.Model):
         """
         super(SmartManager, self).save(*args, **kwargs)
 
-        # Built the template
         smart_manager = import_by_path(self.smart_manager_class)(self.template)
-        smart_manager.build()
+        primary_built_obj = smart_manager.build()
+
+        # Do an update of the primary object type and id after it has been built. We use an update since
+        # you can't call save in a save method. We may want to put this in post_save as well later.
+        if primary_built_obj:
+            self.primary_obj_type = ContentType.objects.get_for_model(primary_built_obj)
+            self.primary_obj_id = primary_built_obj.id
+            SmartManager.objects.filter(id=self.id).update(
+                primary_obj_type=self.primary_obj_type, primary_obj_id=primary_built_obj.id)
 
         # Sync all of the objects from the built template
         sync(self.smartmanagerobject_set.all(), [
