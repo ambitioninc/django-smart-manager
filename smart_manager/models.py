@@ -70,8 +70,6 @@ class SmartManager(models.Model):
             SmartManager.objects.filter(id=self.id).update(
                 primary_obj_type=self.primary_obj_type, primary_obj_id=primary_built_obj.id)
 
-        print 'save', primary_built_obj
-
         # Sync all of the objects from the built template
         sync(self.smartmanagerobject_set.all(), [
             SmartManagerObject(
