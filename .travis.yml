@@ -1,16 +1,19 @@
+sudo: false
 language: python
 python:
   - '2.7'
+  - '3.4'
 env:
   global:
     - DB=postgres
   matrix:
-    - DJANGO=1.6.2
+    - DJANGO=1.6.11
+    - DJANGO=1.7.7
 install:
   - pip install -q coverage flake8 Django==$DJANGO
 before_script:
-  - flake8 . --max-line-length=120 --max-complexity=10 --exclude='env,migrations,*.egg'
   - psql -c 'CREATE DATABASE smart_manager;' -U postgres
 script:
-  - coverage run --source='smart_manager' --branch --omit='smart_manager/migrations/*' setup.py test
-  - coverage report --fail-under=100 --show-missing
+  - flake8 .
+  - coverage run setup.py test
+  - coverage report --fail-under=100
