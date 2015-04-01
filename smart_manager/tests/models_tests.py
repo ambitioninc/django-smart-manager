@@ -177,9 +177,9 @@ class SmartManagerTest(TestCase):
     """
     Tests custom functionality in the SmartManager class.
     """
-    def test_unicode(self):
+    def test_str(self):
         smart_manager = SmartManager(name='hi')
-        self.assertEquals(smart_manager.__unicode__(), 'hi')
+        self.assertEquals(str(smart_manager), 'hi')
 
     def test_undeletable_object(self):
         """

@@ -9,10 +9,12 @@ from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.utils.module_loading import import_by_path
 from manager_utils import sync, ManagerUtilsManager
+import six
 
 from jsonfield import JSONField
 
 
+@six.python_2_unicode_compatible
 class SmartManager(models.Model):
     """
     Specifies the template, its associated model template class, and whether or not deletions should
@@ -38,8 +40,8 @@ class SmartManager(models.Model):
 
     objects = ManagerUtilsManager()
 
-    def __unicode__(self):
-        return unicode(self.name)
+    def __str__(self):
+        return str(self.name)
 
     def clean(self):
         """
@@ -49,8 +51,8 @@ class SmartManager(models.Model):
         try:
             smart_manager = import_by_path(self.smart_manager_class)(self.template)
             smart_manager.build()
-        except Exception, e:
-            raise ValidationError(u'{0} - {1}'.format(str(e), traceback.format_exc()))
+        except Exception as e:
+            raise ValidationError('{0} - {1}'.format(str(e), traceback.format_exc()))
 
     @transaction.atomic
     def save(self, *args, **kwargs):
