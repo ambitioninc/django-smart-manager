@@ -5,8 +5,6 @@ from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
-from django.db.models.signals import pre_delete
-from django.dispatch import receiver
 from django.utils.module_loading import import_by_path
 from manager_utils import sync, ManagerUtilsManager
 import six
@@ -157,19 +155,3 @@ class SmartManagerMixin(object):
         """
         sm_class_path = '{0}.{1}'.format(inspect.getmodule(sm_class).__name__, sm_class.__name__)
         return SmartManager.objects.create(smart_manager_class=sm_class_path, template=sm_template)
-
-
-@receiver(pre_delete, sender=SmartManagerObject, dispatch_uid='delete_model_obj_on_smart_manager_object_delete')
-def delete_model_obj_on_smart_manager_object_delete(sender, instance, **kwargs):
-    """
-    If the model template is managing deletions, delete all of the model objects associated with it before
-    the template is deleted.
-    """
-    if instance.smart_manager.manages_deletions:
-        try:
-            instance.model_obj.delete()
-        except:
-            # The model object could have been deleteed. Its ctype could have been corrupted. It could
-            # have also been trying to cascade delete a protected model. Ignore any deletion errors with
-            # model objects.
-            pass
