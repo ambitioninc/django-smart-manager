@@ -2,9 +2,7 @@
 branch = True
 omit =
     */migrations/*
-    */south_migrations/*
     smart_manager/version.py
-    smart_manager/apps.py
 source = smart_manager
 [report]
 exclude_lines =
