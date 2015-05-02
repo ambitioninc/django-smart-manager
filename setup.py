@@ -41,7 +41,7 @@ setup(
     license='MIT',
     install_requires=[
         'Django>=1.7',
-        'django-manager-utils>=0.8.1',
+        'django-manager-utils>=0.8.2',
         'jsonfield>=0.9.20',
     ],
     tests_require=[
