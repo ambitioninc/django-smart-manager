@@ -5,7 +5,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
-from django.utils.module_loading import import_by_path
+from django.utils.module_loading import import_string
 from manager_utils import sync, ManagerUtilsManager
 import six
 
@@ -47,7 +47,7 @@ class SmartManager(models.Model):
         a validation error.
         """
         try:
-            smart_manager = import_by_path(self.smart_manager_class)(self.template)
+            smart_manager = import_string(self.smart_manager_class)(self.template)
             smart_manager.build()
         except Exception as e:
             raise ValidationError('{0} - {1}'.format(str(e), traceback.format_exc()))
@@ -59,7 +59,7 @@ class SmartManager(models.Model):
         """
         super(SmartManager, self).save(*args, **kwargs)
 
-        smart_manager = import_by_path(self.smart_manager_class)(self.template)
+        smart_manager = import_string(self.smart_manager_class)(self.template)
         primary_built_obj = smart_manager.build()
 
         # Do an update of the primary object type and id after it has been built. We use an update since
