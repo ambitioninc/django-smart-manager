@@ -35,13 +35,14 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Framework :: Django',
-        'Framework :: Django :: 1.6',
         'Framework :: Django :: 1.7',
+        'Framework :: Django :: 1.8',
+        'Framework :: Django :: 1.9',
     ],
     license='MIT',
     install_requires=[
         'Django>=1.7',
-        'django-manager-utils>=0.8.2',
+        'django-manager-utils>=0.9.1',
         'jsonfield>=0.9.20',
     ],
     tests_require=[

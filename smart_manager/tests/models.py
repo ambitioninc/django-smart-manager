@@ -1,6 +1,6 @@
 from django.db import models
 
-from smart_manager import SmartManagerMixin, SmartModelMixin
+from smart_manager.models import SmartManagerMixin, SmartModelMixin
 
 
 class UpsertModelManager(models.Manager, SmartManagerMixin):
