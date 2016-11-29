@@ -52,7 +52,11 @@ from smart_manager import BaseSmartManager
 
 class AddressSmartManager(BaseSmartManager):
     def build(self):
-        self.build_obj(person_id=self._template['person'], street=self._template['street'], city=self._template['city'])
+        self.build_obj(
+            person_id=self._template['person'],
+            street=self._template['street'],
+            city=self._template['city'],
+        )
 ```
 
 Now that we have this class, it can be called in the following way to build its associated object:
