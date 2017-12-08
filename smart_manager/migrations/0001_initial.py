@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import django.db.models.deletion
 import jsonfield.fields
 
 
@@ -21,7 +22,7 @@ class Migration(migrations.Migration):
                 ('manages_deletions', models.BooleanField(default=True)),
                 ('primary_obj_id', models.PositiveIntegerField(default=0)),
                 ('template', jsonfield.fields.JSONField()),
-                ('primary_obj_type', models.ForeignKey(to='contenttypes.ContentType', null=True)),
+                ('primary_obj_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType', null=True)),
             ],
             options={
             },
@@ -32,8 +33,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(serialize=False, auto_created=True, verbose_name='ID', primary_key=True)),
                 ('model_obj_id', models.PositiveIntegerField()),
-                ('model_obj_type', models.ForeignKey(to='contenttypes.ContentType')),
-                ('smart_manager', models.ForeignKey(to='smart_manager.SmartManager')),
+                ('model_obj_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType')),
+                ('smart_manager', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='smart_manager.SmartManager')),
             ],
             options={
             },

@@ -29,7 +29,7 @@ class SmartManager(models.Model):
     manages_deletions = models.BooleanField(default=True)
 
     # The primary object that this smart manager manages
-    primary_obj_type = models.ForeignKey(ContentType, null=True)
+    primary_obj_type = models.ForeignKey(ContentType, null=True, on_delete=models.CASCADE)
     primary_obj_id = models.PositiveIntegerField(default=0)
     primary_obj = GenericForeignKey('primary_obj_type', 'primary_obj_id')
 
@@ -87,10 +87,10 @@ class SmartManagerObject(models.Model):
     are used to manage deletions.
     """
     # The model template that manages this object
-    smart_manager = models.ForeignKey(SmartManager)
+    smart_manager = models.ForeignKey(SmartManager, on_delete=models.CASCADE)
 
     # The generic foreign key to the object
-    model_obj_type = models.ForeignKey(ContentType)
+    model_obj_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     model_obj_id = models.PositiveIntegerField()
     model_obj = GenericForeignKey('model_obj_type', 'model_obj_id', for_concrete_model=False)
 
