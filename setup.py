@@ -22,6 +22,7 @@ setup(
     version=get_version(),
     description='Make templates that manage models',
     long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     url='https://github.com/ambitioninc/django-smart-manager',
     author='Wes Kendall',
     author_email='opensource@ambition.com',
